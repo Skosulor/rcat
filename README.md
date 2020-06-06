@@ -6,10 +6,24 @@ Why? To learn rust and programming.
 
 Will it do anything different or better? Probably not.
 
+## Installion
+
+requirements: [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html "cargo")
+
+
+```
+git clone https://github.com/Skosulor/rcat
+cd rcat
+cargo build --release
+```
+
+path to rcat: `rcat/target/release/rcat`
 
 ## Usage
 
-TODO
+`rcat [FLAGS] [FILE]`
+
+if no file is given, input is taken from `stdin` 
 
 ## Implemented features
 

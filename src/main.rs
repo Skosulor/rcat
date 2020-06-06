@@ -1,6 +1,4 @@
-use exitfailure::ExitFailure;
-use failure::ResultExt;
-use std::io::{self, Read};
+use std::io::Read;
 use structopt::StructOpt;
 
 fn main() {
