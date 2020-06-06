@@ -1,5 +1,6 @@
-# rcat: cat rewritten in rust
+# rcat: cat rewritten in rust [![Build status](https://travis-ci.org/Skosulor/rcat.svg)](https://travis-ci.org/skosulor/rcat)
 
+# Rdiff 
 Goal: rewrite cat from GNU's coreutils in rust.
 
 Why? To learn rust and programming.
