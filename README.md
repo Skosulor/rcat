@@ -53,6 +53,7 @@ it looks neater.
   * [X] -u (ignored)
   * [X] -v, --show-nonprinting
 * [ ] Print actual control sequences instead of '^?' when show-nonprinting flag is set. 
+* [ ] Add path (if there was one) to error messages
 
 ### Issues
 
