@@ -21,7 +21,7 @@ TODO
   * [ ] -A, --show-all
   * [X] -b, --number-nonblank
   * [ ] -e, equivalent to -vE
-  * [ ] -E, --show-ends
+  * [X] -E, --show-ends
   * [X] -n, --number
   * [ ] -s, --squeeze blank
   * [ ] -t  equivalent to -vT

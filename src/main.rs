@@ -110,7 +110,9 @@ impl Output {
     fn show_ends(&mut self) {
         // -s
         if self.opt.show_ends || self.opt.A || self.opt.nonPrint_and_showEnds {
-            ()
+            for line in self.out.iter_mut() {
+                *line = String::from(line.clone() + "$");
+            }
         }
     }
     fn remove_duplicate_blank(&mut self) {
