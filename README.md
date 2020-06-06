@@ -54,6 +54,3 @@ it looks neater.
   * [X] -T, --show-tabs
   * [X] -u (ignored)
   * [X] -v, --show-nonprinting
-  * [X] --help display this help and exit
-  * [X] --version
-* [X] Write help
