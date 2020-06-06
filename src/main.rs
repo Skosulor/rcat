@@ -63,6 +63,7 @@ struct Options {
 struct Output {
     out: Vec<String>,
     opt: Options,
+    ln: u64,
 }
 
 enum Input {
@@ -93,7 +94,7 @@ impl Output {
     // -n & -b
     fn number_lines(&mut self) {
         if self.opt.numbered || self.opt.numbered_nonblank {
-            let mut n = 1;
+            let mut n = self.ln;
             let mut _prefix = String::from("");
 
             for line in self.out.iter_mut() {
@@ -106,6 +107,7 @@ impl Output {
                 let temp = format!("{0:>6}  ", _prefix);
                 *line = String::from(temp + line);
             }
+            self.ln = n;
         }
     }
     fn show_ends(&mut self) {
@@ -140,13 +142,11 @@ impl Output {
     fn show_tabs(&mut self) {
         if self.opt.show_tabs || self.opt.non_print_and_show_tabs || self.opt.show_all {
             for line in self.out.iter_mut() {
-                *line = line.replace("\t", "^I").clone();
+                *line = line.replace('\t', "^I").clone();
             }
         }
     }
 
-    //
-    // display charactars as ^ which are not supported by the terminal
     fn show_nonprinting(&mut self) {
         if self.opt.non_print_and_show_tabs
             || self.opt.non_print_and_show_ends
@@ -154,7 +154,6 @@ impl Output {
             || self.opt.show_all
         {
             for line in self.out.iter_mut() {
-                //line.retain(|c| c.is_ascii());
                 let mut temp = String::new();
                 for c in &mut line.chars() {
                     if c.is_ascii() {
@@ -173,6 +172,7 @@ impl Output {
         let mut out = Output {
             out: Vec::new(),
             opt: o,
+            ln: 0,
         };
 
         let mut f = match Input::from(&out.opt.path) {
@@ -181,23 +181,36 @@ impl Output {
         };
 
         loop {
-            match f.readline() {
-                Ok(res) => match res {
-                    ReadResult::Line(l) => out.out.push(l),
-                    ReadResult::EOF => break,
-                },
-                Err(err) => return Err(err),
+            let mut done = false;
+            for _x in 1..10 {
+                match f.readline() {
+                    Ok(res) => match res {
+                        ReadResult::Line(l) => out.out.push(l),
+                        ReadResult::EOF => {
+                            done = true;
+                            break;
+                        }
+                    },
+                    Err(err) => return Err(err),
+                }
+            }
+
+            out.format_output();
+            out.print();
+            if done {
+                break;
             }
         }
 
-        out.format_output();
-        out.print();
         return Ok(());
     }
-    fn print(&self) {
-        for line in self.out.iter() {
-            println!("{}", line);
-        }
+    fn print(&mut self) {
+        self.out.retain(|line| {
+            let _delete = {
+                println!("{}", line);
+                return false;
+            };
+        })
     }
 }
 
@@ -221,13 +234,15 @@ impl Input {
         let res = match self {
             Input::FromStdin => {
                 let res = std::io::stdin().read_line(&mut input);
-                input = String::from(input.trim());
+                input = input.replace('\n', "").clone();
                 res
             }
 
             Input::FromFile(f) => {
-                let res = f.read_line(&mut input);
-                input = String::from(input.trim());
+                let mut buf = vec![];
+                let res = f.read_until(b'\n', &mut buf);
+                input = String::from_utf8_lossy(&buf).to_string();
+                input = input.replace('\n', "").clone();
                 res
             }
         };

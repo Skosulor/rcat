@@ -28,13 +28,11 @@ if no file is given, input is taken from `stdin`
 
 ## Differences from cat
 
-* [ ] TODO: cannot open any file, e.g. opening a binary file produces an error.
-* [ ] TODO: with flag 'non-printing' non-ascii characters are printed as '^?'
-      instead of the control sequence.
 * If show-ends and number-nonblank flags are set the '$' sign in blank lines will
 have the same line start as numbered lines. This shall be kept as an feature as
 it looks neater.
-
+* When flag show-nonprinting flag (-v) is set, non-ascii characters are printed
+  as '^?', and i just don't care about it enough to do a proper implementation
 
 
 ## Implemented features
@@ -54,3 +52,8 @@ it looks neater.
   * [X] -T, --show-tabs
   * [X] -u (ignored)
   * [X] -v, --show-nonprinting
+* [ ] Print actual control sequences instead of '^?' when show-nonprinting flag is set. 
+
+### Issues
+
+* [X] FIXED:  cannot open non UTF-8 encoded files, e.g. opening a binary file produces an error.
