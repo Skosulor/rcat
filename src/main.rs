@@ -84,16 +84,14 @@ impl Output {
         for f in f_vec.iter() {
             f(self);
         }
-
-        // create vector with functions based on options
-        // loop through vector "self.out" and call each function
     }
     // -n & -b
     fn number_lines(&mut self) {
-        let padding = format!("{:width$}", " ", width = 4);
-        let mut n = 1;
-        let mut prefix = String::from("");
         if self.opt.numbered || self.opt.numbered_nonblank {
+            //let padding = format!("{:width$}", " ", width = 4);
+            let mut n = 1;
+            let mut prefix = String::from("");
+
             for line in self.out.iter_mut() {
                 if self.opt.numbered_nonblank && line == "" {
                     prefix = String::from("");
