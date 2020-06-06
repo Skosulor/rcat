@@ -1,19 +1,17 @@
-use std::io::Read;
+use std::fs::File;
+use std::io::{self, prelude::*};
 use structopt::StructOpt;
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     let args = Options::from_args();
 
-    let mut out = match Output::from(args) {
-        Ok(o) => o,
+    match Output::from(args) {
+        Ok(_) => (),
         Err(err) => {
-            println!("{}", err);
-            return;
+            println!("Error: {}", err);
         }
     };
-
-    out.format_output();
-    out.print();
+    Ok(())
 }
 
 #[derive(StructOpt)]
@@ -67,8 +65,20 @@ struct Output {
     opt: Options,
 }
 
+enum Input {
+    FromFile(io::BufReader<File>),
+    FromStdin,
+}
+
+enum ReadResult {
+    Line(String),
+    EOF,
+}
+
 impl Output {
     fn format_output(&mut self) {
+        // Yes each function could have been called on self instead
+        // The reason a vector of function pointers is used are purley educational for myself
         let f_vec: Vec<&dyn Fn(&mut Output)> = vec![
             &Output::remove_duplicate_blank,
             &Output::number_lines,
@@ -83,7 +93,6 @@ impl Output {
     // -n & -b
     fn number_lines(&mut self) {
         if self.opt.numbered || self.opt.numbered_nonblank {
-            //let padding = format!("{:width$}", " ", width = 4);
             let mut n = 1;
             let mut _prefix = String::from("");
 
@@ -96,7 +105,6 @@ impl Output {
                 }
                 let temp = format!("{0:>6}  ", _prefix);
                 *line = String::from(temp + line);
-                //*line = format!("{0: <2}  {1: <5} ", prefix, line);
             }
         }
     }
@@ -143,6 +151,7 @@ impl Output {
         if self.opt.non_print_and_show_tabs
             || self.opt.non_print_and_show_ends
             || self.opt.non_printing
+            || self.opt.show_all
         {
             for line in self.out.iter_mut() {
                 //line.retain(|c| c.is_ascii());
@@ -160,43 +169,77 @@ impl Output {
         }
     }
 
-    fn from(o: Options) -> Result<Output, String> {
+    fn from(o: Options) -> Result<(), std::io::Error> {
         let mut out = Output {
             out: Vec::new(),
             opt: o,
         };
 
-        let input = match &out.opt.path {
-            Some(p) => match std::fs::read_to_string(p) {
-                Ok(p) => p,
-                Err(e) => {
-                    return Err(String::from(format!(
-                        "Error: {}",
-                        //p.display(),
-                        e,
-                    )));
-                }
-            },
-            None => {
-                let mut std_input = String::new();
-                match std::io::stdin().read_to_string(&mut std_input) {
-                    Ok(_) => std_input,
-                    Err(_) => {
-                        return Err(String::from(format!("Error: Failed to read from stdin")))
-                    }
-                }
-            }
+        let mut f = match Input::from(&out.opt.path) {
+            Ok(f) => f,
+            Err(err) => return Err(err),
         };
 
-        for line in input.lines() {
-            out.out.push(line.to_string());
+        loop {
+            match f.readline() {
+                Ok(res) => match res {
+                    ReadResult::Line(l) => out.out.push(l),
+                    ReadResult::EOF => break,
+                },
+                Err(err) => return Err(err),
+            }
         }
 
-        return Ok(out);
+        out.format_output();
+        out.print();
+        return Ok(());
     }
-    fn print(self) {
+    fn print(&self) {
         for line in self.out.iter() {
             println!("{}", line);
         }
+    }
+}
+
+impl Input {
+    fn from(p: &Option<std::path::PathBuf>) -> Result<Input, std::io::Error> {
+        //let file = File::open("/dev/urandom");
+        match p {
+            Some(p) => {
+                return Ok(Input::FromFile(io::BufReader::new(match File::open(p) {
+                    Ok(f) => f,
+                    Err(e) => return Err(e),
+                })))
+            }
+
+            None => return Ok(Input::FromStdin),
+        }
+    }
+
+    fn readline(&mut self) -> Result<ReadResult, std::io::Error> {
+        let mut input = String::new();
+        let res = match self {
+            Input::FromStdin => {
+                let res = std::io::stdin().read_line(&mut input);
+                input = String::from(input.trim());
+                res
+            }
+
+            Input::FromFile(f) => {
+                let res = f.read_line(&mut input);
+                input = String::from(input.trim());
+                res
+            }
+        };
+
+        match res {
+            Ok(r) => {
+                if r == 0 {
+                    return Ok(ReadResult::EOF);
+                }
+            }
+            Err(err) => return Err(err),
+        }
+        return Ok(ReadResult::Line(input));
     }
 }
