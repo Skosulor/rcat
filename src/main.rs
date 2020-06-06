@@ -114,10 +114,24 @@ impl Output {
         }
     }
     fn remove_duplicate_blank(&mut self) {
-        // -T
-        //
+        // -s
         if self.opt.squeeze_blank {
-            ()
+            let mut prev_line = String::from("negative line");
+            let mut to_remove: Vec<usize> = Vec::new();
+
+            // Get a vector with the indexes of multiple blanks
+            for (n, line) in self.out.iter_mut().enumerate() {
+                if prev_line == "" && line.replace(" ", "") == "" {
+                    to_remove.push(n);
+                    prev_line = String::from("");
+                } else {
+                    prev_line = line.clone();
+                }
+            }
+
+            for (n, rem) in to_remove.iter().enumerate() {
+                self.out.remove(rem - n);
+            }
         }
     }
     fn show_tabs(&mut self) {
