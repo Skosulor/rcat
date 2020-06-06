@@ -69,15 +69,12 @@ struct Output {
     opt: Options,
 }
 
-// fn display_help() {}
-// fn version() {}
-
 impl Output {
     fn format_output(&mut self) {
         let f_vec: Vec<&dyn Fn(&mut Output)> = vec![
+            &Output::remove_duplicate_blank,
             &Output::number_lines,
             &Output::show_ends,
-            &Output::remove_duplicate_blank,
             &Output::show_tabs,
             &Output::show_nonprinting,
         ];
@@ -136,9 +133,12 @@ impl Output {
     }
     fn show_tabs(&mut self) {
         if self.opt.show_tabs || self.opt.nonPrint_and_showTabs || self.opt.A {
-            ()
+            for line in self.out.iter_mut() {
+                *line = line.replace("\t", "^I").clone();
+            }
         }
     }
+
     //
     // display charactars as ^ which are not supported by the terminal
     fn show_nonprinting(&mut self) {

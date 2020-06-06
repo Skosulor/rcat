@@ -23,9 +23,9 @@ TODO
   * [ ] -e, equivalent to -vE
   * [X] -E, --show-ends
   * [X] -n, --number
-  * [ ] -s, --squeeze blank
+  * [X] -s, --squeeze blank
   * [ ] -t  equivalent to -vT
-  * [ ] -T, --show-tabs
+  * [X] -T, --show-tabs
   * [X] -u (ignored)
   * [ ] -v, --show-nonprinting
   * [ ] --help display this help and exit
