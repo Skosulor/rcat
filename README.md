@@ -31,17 +31,17 @@ if no file is given, input is taken from `stdin`
 * [X] print file 
 * [X] Read from stdin and print
 * [X] Handle input error
-* [ ] Options
-  * [ ] -A, --show-all
+* [X] Options
+  * [X] -A, --show-all equivalent to -vET
   * [X] -b, --number-nonblank
-  * [ ] -e, equivalent to -vE
+  * [X] -e, equivalent to -vE
   * [X] -E, --show-ends
   * [X] -n, --number
   * [X] -s, --squeeze blank
-  * [ ] -t  equivalent to -vT
+  * [X] -t  equivalent to -vT
   * [X] -T, --show-tabs
   * [X] -u (ignored)
-  * [ ] -v, --show-nonprinting
-  * [ ] --help display this help and exit
-  * [ ] --version
+  * [X] -v, --show-nonprinting
+  * [X] --help display this help and exit
+  * [X] --version
 * [X] Write help

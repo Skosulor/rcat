@@ -141,8 +141,23 @@ impl Output {
     // display charactars as ^ which are not supported by the terminal
     fn show_nonprinting(&mut self) {
         if self.opt.nonPrint_and_showTabs || self.opt.nonPrint_and_showEnds || self.opt.non_printing
+        if self.opt.non_print_and_show_tabs
+            || self.opt.non_print_and_show_ends
+            || self.opt.non_printing
         {
-            ()
+            for line in self.out.iter_mut() {
+                //line.retain(|c| c.is_ascii());
+                let mut temp = String::new();
+                for c in &mut line.chars() {
+                    if c.is_ascii() {
+                        temp.push(c);
+                    } else {
+                        temp.push_str("^?");
+                        // TODO call helper function to represent the character correctly
+                    }
+                }
+                *line = temp;
+            }
         }
     }
 
