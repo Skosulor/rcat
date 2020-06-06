@@ -25,6 +25,18 @@ path to rcat: `rcat/target/release/rcat`
 
 if no file is given, input is taken from `stdin` 
 
+
+## Differences from cat
+
+* [ ] TODO: cannot open any file, e.g. opening a binary file produces an error.
+* [ ] TODO: with flag 'non-printing' non-ascii characters are printed as '^?'
+      instead of the control sequence.
+* If show-ends and number-nonblank flags are set the '$' sign in blank lines will
+have the same line start as numbered lines. This shall be kept as an feature as
+it looks neater.
+
+
+
 ## Implemented features
 
 * [X] Read file 

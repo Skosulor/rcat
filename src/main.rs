@@ -22,8 +22,8 @@ struct Options {
     path: Option<std::path::PathBuf>,
 
     /// Same as -vET
-    #[structopt(short, long = "show-all")]
-    A: bool,
+    #[structopt(short = "A", long = "show-all")]
+    show_all: bool,
 
     /// Number each line except blank lines
     #[structopt(short = "b", long = "number-nonblank")]
@@ -31,7 +31,7 @@ struct Options {
 
     /// same as -vE
     #[structopt(short = "e")]
-    nonPrint_and_showEnds: bool,
+    non_print_and_show_ends: bool,
 
     /// add $ to the end of each line
     #[structopt(short = "E", long = "show-ends")]
@@ -47,7 +47,7 @@ struct Options {
 
     /// same as -vT
     #[structopt(short = "t")]
-    nonPrint_and_showTabs: bool,
+    non_print_and_show_tabs: bool,
 
     /// remove duplicate blank lines
     #[structopt(short = "T", long = "show-tabs")]
@@ -55,7 +55,7 @@ struct Options {
 
     /// (ignored)
     #[structopt(short = "u")]
-    ignored: bool,
+    _ignored: bool,
 
     /// display non printing characters as ^
     #[structopt(short = "v", long = "show-nonprinting")]
@@ -85,16 +85,16 @@ impl Output {
         if self.opt.numbered || self.opt.numbered_nonblank {
             //let padding = format!("{:width$}", " ", width = 4);
             let mut n = 1;
-            let mut prefix = String::from("");
+            let mut _prefix = String::from("");
 
             for line in self.out.iter_mut() {
                 if self.opt.numbered_nonblank && line == "" {
-                    prefix = String::from("");
+                    _prefix = String::from("");
                 } else {
-                    prefix = format!("{}", n);
+                    _prefix = format!("{}", n);
                     n += 1;
                 }
-                let temp = format!("{0:>6}  ", prefix);
+                let temp = format!("{0:>6}  ", _prefix);
                 *line = String::from(temp + line);
                 //*line = format!("{0: <2}  {1: <5} ", prefix, line);
             }
@@ -102,7 +102,7 @@ impl Output {
     }
     fn show_ends(&mut self) {
         // -s
-        if self.opt.show_ends || self.opt.A || self.opt.nonPrint_and_showEnds {
+        if self.opt.show_ends || self.opt.show_all || self.opt.non_print_and_show_ends {
             for line in self.out.iter_mut() {
                 *line = String::from(line.clone() + "$");
             }
@@ -130,7 +130,7 @@ impl Output {
         }
     }
     fn show_tabs(&mut self) {
-        if self.opt.show_tabs || self.opt.nonPrint_and_showTabs || self.opt.A {
+        if self.opt.show_tabs || self.opt.non_print_and_show_tabs || self.opt.show_all {
             for line in self.out.iter_mut() {
                 *line = line.replace("\t", "^I").clone();
             }
@@ -140,7 +140,6 @@ impl Output {
     //
     // display charactars as ^ which are not supported by the terminal
     fn show_nonprinting(&mut self) {
-        if self.opt.nonPrint_and_showTabs || self.opt.nonPrint_and_showEnds || self.opt.non_printing
         if self.opt.non_print_and_show_tabs
             || self.opt.non_print_and_show_ends
             || self.opt.non_printing
@@ -161,9 +160,6 @@ impl Output {
         }
     }
 
-    // helper function for nonprinting and show tabs
-    fn replace_char(&mut self, line: &mut String, old: char, new: char) {}
-
     fn from(o: Options) -> Result<Output, String> {
         let mut out = Output {
             out: Vec::new(),
@@ -173,11 +169,12 @@ impl Output {
         let input = match &out.opt.path {
             Some(p) => match std::fs::read_to_string(p) {
                 Ok(p) => p,
-                Err(_) => {
+                Err(e) => {
                     return Err(String::from(format!(
-                        "Error: No such file: {}",
-                        p.display()
-                    )))
+                        "Error: {}",
+                        //p.display(),
+                        e,
+                    )));
                 }
             },
             None => {
