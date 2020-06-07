@@ -1,3 +1,4 @@
+//use std::error::Error;
 use std::fs::File;
 use std::io::{self, prelude::*};
 use structopt::StructOpt;
@@ -168,7 +169,7 @@ impl Output {
         }
     }
 
-    fn from(o: Options) -> Result<(), std::io::Error> {
+    fn from(o: Options) -> Result<(), String> {
         let mut out = Output {
             out: Vec::new(),
             opt: o,
@@ -191,7 +192,11 @@ impl Output {
                             break;
                         }
                     },
-                    Err(err) => return Err(err),
+                    Err(err) => {
+                        return Err(String::from(
+                            String::from(out.opt.path.unwrap().to_str().unwrap()) + " " + &err,
+                        ))
+                    }
                 }
             }
 
@@ -215,13 +220,17 @@ impl Output {
 }
 
 impl Input {
-    fn from(p: &Option<std::path::PathBuf>) -> Result<Input, std::io::Error> {
+    fn from(p: &Option<std::path::PathBuf>) -> Result<Input, String> {
         //let file = File::open("/dev/urandom");
         match p {
             Some(p) => {
                 return Ok(Input::FromFile(io::BufReader::new(match File::open(p) {
                     Ok(f) => f,
-                    Err(e) => return Err(e),
+                    Err(e) => {
+                        return Err(String::from(
+                            String::from(p.to_str().unwrap()) + " " + &e.to_string(),
+                        ))
+                    }
                 })))
             }
 
@@ -229,7 +238,7 @@ impl Input {
         }
     }
 
-    fn readline(&mut self) -> Result<ReadResult, std::io::Error> {
+    fn readline(&mut self) -> Result<ReadResult, String> {
         let mut input = String::new();
         let res = match self {
             Input::FromStdin => {
@@ -253,7 +262,7 @@ impl Input {
                     return Ok(ReadResult::EOF);
                 }
             }
-            Err(err) => return Err(err),
+            Err(err) => return Err(String::from(err.to_string())),
         }
         return Ok(ReadResult::Line(input));
     }
