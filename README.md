@@ -29,7 +29,7 @@ if no file is given, input is taken from `stdin`
 ## Differences from cat
 
 * If show-ends and number-nonblank flags are set the '$' sign in blank lines will
-have the same line start as numbered lines. This shall be kept as an feature as
+have the same line start as numbered lines. This shall be kept as a feature as
 it looks neater.
 * When flag show-nonprinting flag (-v) is set, non-ascii characters are printed
   as '^?', and i just don't care about it enough to do a proper implementation
